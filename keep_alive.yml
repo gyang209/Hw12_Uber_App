@@ -1,10 +1,25 @@
-name: Keep App Alive
+name: Keep Streamlit App Awake
+
 on:
   schedule:
-    - cron: '0 0 */4 * *' # Runs every 4 days
+    # Runs every 12 hours (at 00:00 and 12:00 UTC)
+    - cron: '0 */12 * * *'
+  workflow_dispatch: # Allows you to run it manually for testing
+
 jobs:
-  ping:
+  auto_commit:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Streamlit App
-        run: curl -I https://your-app-url.streamlit.app/
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update timestamp
+        run: |
+          date > ping.txt
+
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'ping.txt'
+          message: 'Automated keep-alive commit'
+          push: true
